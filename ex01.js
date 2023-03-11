@@ -69,3 +69,13 @@ console.log(cathy);
 delete cathy.city;
 // { name: 'cathy', age: 19, skills: [ '자바스크립트', '파이썬', '코볼' ] }
 console.log(cathy);
+
+console.log("---------------------------------------");
+
+const json = '{"result":true, "count":42}';
+const obj = JSON.parse(json);
+
+console.log(obj.count);
+console.log(obj.result);
+
+console.log(JSON.stringify({x:5, y:6}));
