@@ -9,3 +9,5 @@ function checkStringOddorEven(str) {
 }
 console.log("useModule : ", checkNumberFunc(10));
 console.log("useModule : ", checkStringOddorEven('Hello'));
+
+module.exports = [checkStringOddorEven, checkNumberFunc, text_odd, text_even];
