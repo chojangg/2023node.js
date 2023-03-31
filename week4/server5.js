@@ -19,19 +19,35 @@ const server = http.createServer(async (req, res)=> {
         
         // 요소만들기
         let fileListText = '<ul>';
-        fileList.then((file_list) => {
+        await fileList.then((file_list) => {
             let li = 0;
             console.log("file_list",file_list);
-            // while(li < file_list.length){
-            //     let dateData = file_list[li].replace("menu_", "").replace(".txt","");
-            //     fileListText += `<li><a href="/?date=${dateData}>`
+            while(li < file_list.length){
+                let dateData = file_list[li].replace("menu_", "").replace(".txt","");
+                fileListText += `<li><a href="/?date=${dateData}">${dateData}</a></li>`
 
-            //     li+=1;
-            // }
+                li+=1;
+            }
         });
+        console.log("log",fileListText);
+        fileListText += '</ul>';
 
-        res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
-        res.end("성공");
+        const template = `
+        <!DOCTYPE html>
+        <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <title> 급식 메뉴 </title>
+            </head>
+            <body>
+                <h1><a href="/">급식 메뉴</a></h1>
+                ${fileListText}
+            </body>
+        </html>
+        `
+
+        res.writeHead(200, {'Content-Type':'text/html; charset=utf-8'});
+        res.end(template);
 
     }catch(err){
         console.error(err);
