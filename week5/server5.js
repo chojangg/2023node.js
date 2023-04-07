@@ -53,7 +53,13 @@ const server = http.createServer(async (req, res)=> {
                 <p><input type="text" name="title" placeholder="title"/></p>
                 <p><textarea name="description" placeholder="description"></textarea></p>
                 <p><input type="submit"></p>
-            </form>`
+            </form>`;
+        } else if(pathname == '/update'){
+            subContent = `<form action="create_process" method="post">
+                <p><input type="text" name="title" placeholder="title" value=${param_date} /></p>
+                <p><textarea name="description" placeholder="description"${fileDataString}></textarea></p>
+                <p><input type="submit"></p>
+            </form>`;
         }
 
         const template = `
@@ -69,15 +75,35 @@ const server = http.createServer(async (req, res)=> {
                 <br>
                 ${fileDataString}
                 <br>
-                <a href="create">create</a><a href="/update?id=${title}">update</a>
+                <a href="create">create</a><a href="/update?date=${param_date}"> update</a>
                 ${subContent}
             </body>
         </html>
         `
 
-        res.writeHead(200, {'Content-Type':'text/html; charset=utf-8'});
-        res.end(template);
+        if(pathname == '/create_process'){
+            let body = "";
+            req.on('data',function (data){
+                body += data;
+            });
+            req.on('end', function (){
+                const post = qs.parse(body);
+                const title = post.title;    // 파일 제못
+                const description = post.description;
+                fs.writeFile(path.join(__dirname, `./textFile/menu_${title}.txt`), description, 'utf-8',function(err){});
+                console.log("내용",post);
 
+                // 글 작성후 해달 내용을 볼 수 있도록 링크이동
+                res.writeHead(302,{Location:`/?date=${encodeURIComponent(title)}`});
+                res.end();
+            })
+        } else {
+                res.writeHead(200, {'Content-Type':'text/html; charset=utf-8'});
+                res.end(template);
+        }
+
+        
+        
     }catch(err){
         console.error(err);
         res.writeHead(500, {'Content-Type':'text/plain; charset=utf-8'});
