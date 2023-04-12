@@ -55,9 +55,10 @@ const server = http.createServer(async (req, res)=> {
                 <p><input type="submit"></p>
             </form>`;
         } else if(pathname == '/update'){
-            subContent = `<form action="create_process" method="post">
-                <p><input type="text" name="title" placeholder="title" value=${param_date} /></p>
-                <p><textarea name="description" placeholder="description"${fileDataString}></textarea></p>
+            subContent = `<form action="update_process" method="post">
+                <input type="hidden" name="id" value=${param_date} />
+                <p><input type="text" name="title" placeholder="title" value="${param_date}"></p>
+                <p><textarea name="description" placeholder="description">${fileData}</textarea></p>
                 <p><input type="submit"></p>
             </form>`;
         }
@@ -97,6 +98,22 @@ const server = http.createServer(async (req, res)=> {
                 res.writeHead(302,{Location:`/?date=${encodeURIComponent(title)}`});
                 res.end();
             })
+        } else if(pathname == '/update_process') {
+            let body = '';
+            req.on('data', function(data){
+                body += body + data;
+            });
+            req.on('end', async function(){
+                const post = qs.parse(body);
+                const id = post.id;
+                const title = post.title;
+                const description = post.description;
+                await fs.rename(`textFile/menu_${id}.txt`, `textFile/menu_${title}.txt`);
+                await fs.writeFile(`textFile/menu_${title}.txt`, description, 'utf-8');
+                res.writeHead(302, {Location:`/?data=${encodeURIComponent(title)}`});
+                res.end();
+            });
+        
         } else {
                 res.writeHead(200, {'Content-Type':'text/html; charset=utf-8'});
                 res.end(template);
