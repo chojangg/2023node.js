@@ -74,9 +74,17 @@ const server = http.createServer(async (req, res)=> {
                 <h1><a href="/">급식 메뉴</a></h1>
                 ${fileListText}
                 <br>
+                <h3>${param_date}</h3>
+                <br>
                 ${fileDataString}
                 <br>
-                <a href="create">create</a><a href="/update?date=${param_date}"> update</a>
+                
+                <input type="button" value="create" onclick='location.href"/create"'>
+                <input type="button" value="update" onclick='location.href"/update?date=${param_date}"'>
+                <form action="delete_process" method="post">
+                    <input type="hidden" name="id" value="${param_date}">
+                    <input type="submit" value="delete">
+                </form>
                 ${subContent}
             </body>
         </html>
@@ -97,6 +105,7 @@ const server = http.createServer(async (req, res)=> {
                 // 글 작성후 해달 내용을 볼 수 있도록 링크이동
                 res.writeHead(302,{Location:`/?date=${encodeURIComponent(title)}`});
                 res.end();
+
             })
         } else if(pathname == '/update_process') {
             let body = '';
@@ -108,12 +117,29 @@ const server = http.createServer(async (req, res)=> {
                 const id = post.id;
                 const title = post.title;
                 const description = post.description;
-                await fs.rename(`textFile/menu_${id}.txt`, `textFile/menu_${title}.txt`);
+                // await fs.rename(`textFile/menu_${id}.txt`, `textFile/menu_${title}.txt`);
+                await fs.rename(path.join(__dirname, `textFile/menu_${id}.txt`), path.join(__dirname, `textFile/menu_${title}.txt`));
                 await fs.writeFile(`textFile/menu_${title}.txt`, description, 'utf-8');
                 res.writeHead(302, {Location:`/?data=${encodeURIComponent(title)}`});
                 res.end();
+
             });
         
+        } else if(pathname == '/delete_process') {
+            let body = '';
+            req.on('data', function(data){
+                body += body + data;
+            });
+            req.on('end', async function(){
+                const post = qs.parse(body);
+                const id = post.id;
+                console.log("KK", id);
+                await fs.unlink(path.join(__dirname, `textFile/menu_${id}.txt`));
+                res.writeHead(302,{Location:'/'});
+                res.end();
+
+            });
+
         } else {
                 res.writeHead(200, {'Content-Type':'text/html; charset=utf-8'});
                 res.end(template);
